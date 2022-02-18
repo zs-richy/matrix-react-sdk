@@ -95,21 +95,23 @@ export default class RoomSettingsDialog extends React.Component<IProps, IState> 
             "mx_RoomSettingsDialog_settingsIcon",
             <GeneralRoomSettingsTab roomId={this.props.roomId} />,
         ));
-        tabs.push(new Tab(
-            ROOM_SECURITY_TAB,
-            _td("Security & Privacy"),
-            "mx_RoomSettingsDialog_securityIcon",
-            <SecurityRoomSettingsTab
-                roomId={this.props.roomId}
-                closeSettingsFn={() => this.props.onFinished(true)}
-            />,
-        ));
-        tabs.push(new Tab(
-            ROOM_ROLES_TAB,
-            _td("Roles & Permissions"),
-            "mx_RoomSettingsDialog_rolesIcon",
-            <RolesRoomSettingsTab roomId={this.props.roomId} />,
-        ));
+
+        //TÖRÖLVE ZSR
+        // tabs.push(new Tab(
+        //     ROOM_SECURITY_TAB,
+        //     _td("Security & Privacy"),
+        //     "mx_RoomSettingsDialog_securityIcon",
+        //     <SecurityRoomSettingsTab
+        //         roomId={this.props.roomId}
+        //         closeSettingsFn={() => this.props.onFinished(true)}
+        //     />,
+        // ));
+        // tabs.push(new Tab(
+        //     ROOM_ROLES_TAB,
+        //     _td("Roles & Permissions"),
+        //     "mx_RoomSettingsDialog_rolesIcon",
+        //     <RolesRoomSettingsTab roomId={this.props.roomId} />,
+        // ));
         tabs.push(new Tab(
             ROOM_NOTIFICATIONS_TAB,
             _td("Notifications"),

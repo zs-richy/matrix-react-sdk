@@ -124,7 +124,7 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
     }
 
     let favouriteOption: JSX.Element;
-    let lowPriorityOption: JSX.Element;
+    // let lowPriorityOption: JSX.Element;
     let notificationOption: JSX.Element;
     if (room.getMyMembership() === "join") {
         const isFavorite = roomTags.includes(DefaultTagID.Favourite);
@@ -138,13 +138,14 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
             iconClassName="mx_RoomTile_iconStar"
         />;
 
-        const isLowPriority = roomTags.includes(DefaultTagID.LowPriority);
-        lowPriorityOption = <IconizedContextMenuCheckbox
-            onClick={(e) => onTagRoom(e, DefaultTagID.LowPriority)}
-            active={isLowPriority}
-            label={_t("Low priority")}
-            iconClassName="mx_RoomTile_iconArrowDown"
-        />;
+        //TÖRÖLVE ZSR
+        //const isLowPriority = roomTags.includes(DefaultTagID.LowPriority);
+        // lowPriorityOption = <IconizedContextMenuCheckbox
+        //     onClick={(e) => onTagRoom(e, DefaultTagID.LowPriority)}
+        //     active={isLowPriority}
+        //     label={_t("Low priority")}
+        //     iconClassName="mx_RoomTile_iconArrowDown"
+        // />;
 
         const echoChamber = EchoChamber.forRoom(room);
         let notificationLabel: string;
@@ -192,7 +193,7 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
     }
 
     let peopleOption: JSX.Element;
-    let copyLinkOption: JSX.Element;
+    // let copyLinkOption: JSX.Element;
     if (!isDm) {
         peopleOption = <IconizedContextMenuOption
             onClick={(ev: ButtonEvent) => {
@@ -212,20 +213,21 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
             </span>
         </IconizedContextMenuOption>;
 
-        copyLinkOption = <IconizedContextMenuOption
-            onClick={(ev: ButtonEvent) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-
-                dis.dispatch({
-                    action: "copy_room",
-                    room_id: room.roomId,
-                });
-                onFinished();
-            }}
-            label={_t("Copy room link")}
-            iconClassName="mx_RoomTile_iconCopyLink"
-        />;
+        //TÖRÖLVE ZSR
+        // copyLinkOption = <IconizedContextMenuOption
+        //     onClick={(ev: ButtonEvent) => {
+        //         ev.preventDefault();
+        //         ev.stopPropagation();
+        //
+        //         dis.dispatch({
+        //             action: "copy_room",
+        //             room_id: room.roomId,
+        //         });
+        //         onFinished();
+        //     }}
+        //     label={_t("Copy room link")}
+        //     iconClassName="mx_RoomTile_iconCopyLink"
+        // />;
     }
 
     const onTagRoom = (ev: ButtonEvent, tagId: TagID) => {
@@ -258,6 +260,7 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
         }, true);
     };
 
+    //TÖRÖLVE ZSR { copyLinkOption } a low prio alol { lowPriorityOption } is
     return <IconizedContextMenu {...props} onFinished={onFinished} className="mx_RoomTile_contextMenu" compact>
         <IconizedContextMenuOptionList>
             { inviteOption }
@@ -290,9 +293,6 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
                 label={_t("Widgets")}
                 iconClassName="mx_RoomTile_iconWidgets"
             />
-
-            { lowPriorityOption }
-            { copyLinkOption }
 
             <IconizedContextMenuOption
                 onClick={(ev: ButtonEvent) => {

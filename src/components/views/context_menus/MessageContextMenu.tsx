@@ -307,15 +307,16 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
             }
         }
 
-        if (isSent && this.state.canRedact) {
-            redactButton = (
-                <IconizedContextMenuOption
-                    iconClassName="mx_MessageContextMenu_iconRedact"
-                    label={_t("Remove")}
-                    onClick={this.onRedactClick}
-                />
-            );
-        }
+        //TÖRÖLVE ZSR
+        // if (isSent && this.state.canRedact) {
+        //     redactButton = (
+        //         <IconizedContextMenuOption
+        //             iconClassName="mx_MessageContextMenu_iconRedact"
+        //             label={_t("Remove")}
+        //             onClick={this.onRedactClick}
+        //         />
+        //     );
+        // }
 
         if (this.canOpenInMapSite(mxEvent)) {
             const mapSiteLink = createMapSiteLink(mxEvent);
@@ -337,15 +338,15 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         }
 
         if (isContentActionable(mxEvent)) {
-            if (canForward(mxEvent)) {
-                forwardButton = (
-                    <IconizedContextMenuOption
-                        iconClassName="mx_MessageContextMenu_iconForward"
-                        label={_t("Forward")}
-                        onClick={this.onForwardClick}
-                    />
-                );
-            }
+            // if (canForward(mxEvent)) {
+            //     forwardButton = (
+            //         <IconizedContextMenuOption
+            //             iconClassName="mx_MessageContextMenu_iconForward"
+            //             label={_t("Forward")}
+            //             onClick={this.onForwardClick}
+            //         />
+            //     );
+            // }
 
             if (this.state.canPin) {
                 pinButton = (
@@ -358,13 +359,14 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
             }
         }
 
-        const viewSourceButton = (
-            <IconizedContextMenuOption
-                iconClassName="mx_MessageContextMenu_iconSource"
-                label={_t("View source")}
-                onClick={this.onViewSourceClick}
-            />
-        );
+        //TÖRÖLVE ZSR
+        // const viewSourceButton = (
+        //     <IconizedContextMenuOption
+        //         iconClassName="mx_MessageContextMenu_iconSource"
+        //         label={_t("View source")}
+        //         onClick={this.onViewSourceClick}
+        //     />
+        // );
 
         if (this.props.eventTileOps) {
             if (this.props.eventTileOps.isWidgetHidden()) {
@@ -383,22 +385,24 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         if (this.props.permalinkCreator) {
             permalink = this.props.permalinkCreator.forEvent(this.props.mxEvent.getId());
         }
-        permalinkButton = (
-            <IconizedContextMenuOption
-                iconClassName="mx_MessageContextMenu_iconPermalink"
-                onClick={this.onPermalinkClick}
-                label={_t('Share')}
-                element="a"
-                {
-                    // XXX: Typescript signature for AccessibleButton doesn't work properly for non-inputs like `a`
-                    ...{
-                        href: permalink,
-                        target: "_blank",
-                        rel: "noreferrer noopener",
-                    }
-                }
-            />
-        );
+
+        //TÖRÖLVE ZSR
+        // permalinkButton = (
+        //     <IconizedContextMenuOption
+        //         iconClassName="mx_MessageContextMenu_iconPermalink"
+        //         onClick={this.onPermalinkClick}
+        //         label={_t('Share')}
+        //         element="a"
+        //         {
+        //             // XXX: Typescript signature for AccessibleButton doesn't work properly for non-inputs like `a`
+        //             ...{
+        //                 href: permalink,
+        //                 target: "_blank",
+        //                 rel: "noreferrer noopener",
+        //             }
+        //         }
+        //     />
+        // );
 
         if (this.canEndPoll(mxEvent)) {
             endPollButton = (
@@ -410,15 +414,16 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
             );
         }
 
-        if (this.props.eventTileOps) { // this event is rendered using TextualBody
-            quoteButton = (
-                <IconizedContextMenuOption
-                    iconClassName="mx_MessageContextMenu_iconQuote"
-                    label={_t("Quote")}
-                    onClick={this.onQuoteClick}
-                />
-            );
-        }
+        //TÖRÖLVE ZSR
+        // if (this.props.eventTileOps) { // this event is rendered using TextualBody
+        //     quoteButton = (
+        //         <IconizedContextMenuOption
+        //             iconClassName="mx_MessageContextMenu_iconQuote"
+        //             label={_t("Quote")}
+        //             onClick={this.onQuoteClick}
+        //         />
+        //     );
+        // }
 
         // Bridges can provide a 'external_url' to link back to the source.
         if (typeof (mxEvent.getContent().external_url) === "string" &&
@@ -453,15 +458,17 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         }
 
         let reportEventButton: JSX.Element;
-        if (mxEvent.getSender() !== me) {
-            reportEventButton = (
-                <IconizedContextMenuOption
-                    iconClassName="mx_MessageContextMenu_iconReport"
-                    label={_t("Report")}
-                    onClick={this.onReportEventClick}
-                />
-            );
-        }
+
+        //TÖRÖLVE ZSR
+        // if (mxEvent.getSender() !== me) {
+        //     reportEventButton = (
+        //         <IconizedContextMenuOption
+        //             iconClassName="mx_MessageContextMenu_iconReport"
+        //             label={_t("Report")}
+        //             onClick={this.onReportEventClick}
+        //         />
+        //     );
+        // }
 
         const { timelineRenderingType } = this.context;
         const isThread = (
@@ -489,11 +496,33 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
                 { reportEventButton }
                 { externalURLButton }
                 { unhidePreviewButton }
-                { viewSourceButton }
                 { resendReactionsButton }
                 { collapseReplyChain }
             </IconizedContextMenuOptionList>
         );
+
+        //TÖRÖLVE ZSR
+        // const commonItemsList = (
+        //     <IconizedContextMenuOptionList>
+        //         { (isThreadRootEvent && isMainSplitTimelineShown) && <IconizedContextMenuOption
+        //             iconClassName="mx_MessageContextMenu_iconViewInRoom"
+        //             label={_t("View in room")}
+        //             onClick={this.viewInRoom}
+        //         /> }
+        //         { openInMapSiteButton }
+        //         { endPollButton }
+        //         { quoteButton }
+        //         { forwardButton }
+        //         { pinButton }
+        //         { permalinkButton }
+        //         { reportEventButton }
+        //         { externalURLButton }
+        //         { unhidePreviewButton }
+        //         { viewSourceButton }
+        //         { resendReactionsButton }
+        //         { collapseReplyChain }
+        //     </IconizedContextMenuOptionList>
+        // );
 
         if (redactButton) {
             redactItemList = (

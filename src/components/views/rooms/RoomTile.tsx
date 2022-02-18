@@ -504,6 +504,19 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
 
             const userId = MatrixClientPeg.get().getUserId();
             const canInvite = this.props.room.canInvite(userId) && !isDm; // hide invite in DMs from this quick menu
+
+            //TÖRÖLVE ZSR
+            // { !isDm ? <IconizedContextMenuOption
+            //     onClick={this.onCopyRoomClick}
+            //     label={_t("Copy room link")}
+            //     iconClassName="mx_RoomTile_iconCopyLink"
+            // /> : null }
+            // <IconizedContextMenuCheckbox
+            //     onClick={(e) => this.onTagRoom(e, DefaultTagID.LowPriority)}
+            //     active={isLowPriority}
+            //     label={lowPriorityLabel}
+            //     iconClassName="mx_RoomTile_iconArrowDown"
+            // />
             contextMenu = <IconizedContextMenu
                 {...contextMenuBelow(this.state.generalMenuPosition)}
                 onFinished={this.onCloseGeneralMenu}
@@ -520,12 +533,6 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                         label={favouriteLabel}
                         iconClassName="mx_RoomTile_iconStar"
                     />
-                    <IconizedContextMenuCheckbox
-                        onClick={(e) => this.onTagRoom(e, DefaultTagID.LowPriority)}
-                        active={isLowPriority}
-                        label={lowPriorityLabel}
-                        iconClassName="mx_RoomTile_iconArrowDown"
-                    />
                     { canInvite ? (
                         <IconizedContextMenuOption
                             onClick={this.onInviteClick}
@@ -533,11 +540,6 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                             iconClassName="mx_RoomTile_iconInvite"
                         />
                     ) : null }
-                    { !isDm ? <IconizedContextMenuOption
-                        onClick={this.onCopyRoomClick}
-                        label={_t("Copy room link")}
-                        iconClassName="mx_RoomTile_iconCopyLink"
-                    /> : null }
                     <IconizedContextMenuOption
                         onClick={this.onOpenRoomSettings}
                         label={_t("Settings")}

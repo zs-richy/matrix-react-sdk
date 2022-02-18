@@ -15,28 +15,28 @@ limitations under the License.
 */
 
 import * as React from "react";
-import { useContext, useState } from "react";
+import {useContext, useState} from "react";
 
 import AutoHideScrollbar from './AutoHideScrollbar';
-import { getHomePageUrl } from "../../utils/pages";
-import { _tDom } from "../../languageHandler";
+import {getHomePageUrl} from "../../utils/pages";
+import {_tDom} from "../../languageHandler";
 import SdkConfig from "../../SdkConfig";
 import * as sdk from "../../index";
 import dis from "../../dispatcher/dispatcher";
-import { Action } from "../../dispatcher/actions";
+import {Action} from "../../dispatcher/actions";
 import BaseAvatar from "../views/avatars/BaseAvatar";
-import { OwnProfileStore } from "../../stores/OwnProfileStore";
-import AccessibleButton, { ButtonEvent } from "../views/elements/AccessibleButton";
-import { UPDATE_EVENT } from "../../stores/AsyncStore";
-import { useEventEmitter } from "../../hooks/useEventEmitter";
+import {OwnProfileStore} from "../../stores/OwnProfileStore";
+import AccessibleButton, {ButtonEvent} from "../views/elements/AccessibleButton";
+import {UPDATE_EVENT} from "../../stores/AsyncStore";
+import {useEventEmitter} from "../../hooks/useEventEmitter";
 import MatrixClientContext from "../../contexts/MatrixClientContext";
-import MiniAvatarUploader, { AVATAR_SIZE } from "../views/elements/MiniAvatarUploader";
+import MiniAvatarUploader, {AVATAR_SIZE} from "../views/elements/MiniAvatarUploader";
 import Analytics from "../../Analytics";
 import PosthogTrackers from "../../PosthogTrackers";
 
 const onClickSendDm = () => {
     Analytics.trackEvent('home_page', 'button', 'dm');
-    dis.dispatch({ action: 'view_create_chat' });
+    dis.dispatch({action: 'view_create_chat'});
 };
 
 const onClickExplore = () => {
@@ -47,7 +47,7 @@ const onClickExplore = () => {
 const onClickNewRoom = (ev: ButtonEvent) => {
     Analytics.trackEvent('home_page', 'button', 'create_room');
     PosthogTrackers.trackInteraction("WebHomeCreateRoomButton", ev);
-    dis.dispatch({ action: 'view_create_room' });
+    dis.dispatch({action: 'view_create_room'});
 };
 
 interface IProps {
@@ -84,24 +84,24 @@ const UserWelcomeTop = () => {
             />
         </MiniAvatarUploader>
 
-        <h1>{ _tDom("Welcome %(name)s", { name: ownProfile.displayName }) }</h1>
-        <h4>{ _tDom("Now, let's help you get started") }</h4>
+        <h1>{_tDom("Welcome %(name)s", {name: ownProfile.displayName})}</h1>
+        <h4>{_tDom("Now, let's help you get started")}</h4>
     </div>;
 };
 
-const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
+const HomePage: React.FC<IProps> = ({justRegistered = false}) => {
     const config = SdkConfig.get();
     const pageUrl = getHomePageUrl(config);
 
     if (pageUrl) {
         // FIXME: Using an import will result in wrench-element-tests failures
         const EmbeddedPage = sdk.getComponent('structures.EmbeddedPage');
-        return <EmbeddedPage className="mx_HomePage" url={pageUrl} scrollbar={true} />;
+        return <EmbeddedPage className="mx_HomePage" url={pageUrl} scrollbar={true}/>;
     }
 
     let introSection;
     if (justRegistered) {
-        introSection = <UserWelcomeTop />;
+        introSection = <UserWelcomeTop/>;
     } else {
         const brandingConfig = config.branding;
         let logoUrl = "themes/element/img/logos/element-logo.svg";
@@ -109,29 +109,45 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
             logoUrl = brandingConfig.authHeaderLogoUrl;
         }
 
+
+        //TÖRÖLVE ZSR
         introSection = <React.Fragment>
-            <img src={logoUrl} alt={config.brand} />
-            <h1>{ _tDom("Welcome to %(appName)s", { appName: config.brand }) }</h1>
-            <h4>{ _tDom("Own your conversations.") }</h4>
+            <img src={logoUrl} alt={config.brand}/>
+            <h1>{_tDom("Welcome to %(appName)s", {appName: config.brand})}</h1>
         </React.Fragment>;
+
+        // introSection = <React.Fragment>
+        //     <img src={logoUrl} alt={config.brand}/>
+        //     <h1>{_tDom("Welcome to %(appName)s", {appName: config.brand})}</h1>
+        //     <h4>{_tDom("Own your conversations.")}</h4>
+        // </React.Fragment>;
     }
 
+
+    //TÖRÖLVE ZSR
     return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
         <div className="mx_HomePage_default_wrapper">
-            { introSection }
-            <div className="mx_HomePage_default_buttons">
-                <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
-                    { _tDom("Send a Direct Message") }
-                </AccessibleButton>
-                <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
-                    { _tDom("Explore Public Rooms") }
-                </AccessibleButton>
-                <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
-                    { _tDom("Create a Group Chat") }
-                </AccessibleButton>
-            </div>
+            {introSection}
         </div>
     </AutoHideScrollbar>;
 };
+
+// return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
+//     <div className="mx_HomePage_default_wrapper">
+//         { introSection }
+//         <div className="mx_HomePage_default_buttons">
+//             <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
+//                 { _tDom("Send a Direct Message") }
+//             </AccessibleButton>
+//             <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
+//                 { _tDom("Explore Public Rooms") }
+//             </AccessibleButton>
+//             <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
+//                 { _tDom("Create a Group Chat") }
+//             </AccessibleButton>
+//         </div>
+//     </div>
+// </AutoHideScrollbar>;
+// };
 
 export default HomePage;

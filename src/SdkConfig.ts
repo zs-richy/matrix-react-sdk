@@ -30,13 +30,13 @@ export interface ConfigOptions {
 
 export const DEFAULTS: ConfigOptions = {
     // Brand name of the app
-    brand: "Element",
+    brand: "NOVA Chat",
     // URL to a page we show in an iframe to configure integrations
     integrations_ui_url: "https://scalar.vector.im/",
     // Base URL to the REST interface of the integrations server
     integrations_rest_url: "https://scalar.vector.im/api",
     // Where to send bug reports. If not specified, bugs cannot be sent.
-    bug_report_endpoint_url: null,
+    bug_report_endpoint_url: "",
     // Jitsi conference options
     jitsi: {
         // Default conference domain

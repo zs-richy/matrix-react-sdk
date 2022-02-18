@@ -145,6 +145,7 @@ export default class AdvancedRoomSettingsTab extends React.Component<IProps, ISt
             );
         }
 
+        //TRÖLVE ZSR
         return (
             <div className="mx_SettingsTab">
                 <div className="mx_SettingsTab_heading">{ _t("Advanced") }</div>
@@ -169,13 +170,40 @@ export default class AdvancedRoomSettingsTab extends React.Component<IProps, ISt
                     { oldRoomLink }
                     { roomUpgradeButton }
                 </div>
-                <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
-                    <span className='mx_SettingsTab_subheading'>{ _t("Developer options") }</span>
-                    <AccessibleButton onClick={this.openDevtools} kind='primary'>
-                        { _t("Open Devtools") }
-                    </AccessibleButton>
-                </div>
             </div>
         );
+
+        // return (
+        //     <div className="mx_SettingsTab">
+        //         <div className="mx_SettingsTab_heading">{ _t("Advanced") }</div>
+        //         <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
+        //             <span className='mx_SettingsTab_subheading'>
+        //                 { room?.isSpaceRoom() ? _t("Space information") : _t("Room information") }
+        //             </span>
+        //             <div>
+        //                 <span>{ _t("Internal room ID") }</span>
+        //                 <CopyableText getTextToCopy={() => this.props.roomId}>
+        //                     { this.props.roomId }
+        //                 </CopyableText>
+        //             </div>
+        //             { unfederatableSection }
+        //         </div>
+        //         <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
+        //             <span className='mx_SettingsTab_subheading'>{ _t("Room version") }</span>
+        //             <div>
+        //                 <span>{ _t("Room version:") }</span>&nbsp;
+        //                 { room.getVersion() }
+        //             </div>
+        //             { oldRoomLink }
+        //             { roomUpgradeButton }
+        //         </div>
+        //         <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
+        //             <span className='mx_SettingsTab_subheading'>{ _t("Developer options") }</span>
+        //             <AccessibleButton onClick={this.openDevtools} kind='primary'>
+        //                 { _t("Open Devtools") }
+        //             </AccessibleButton>
+        //         </div>
+        //     </div>
+        // );
     }
 }

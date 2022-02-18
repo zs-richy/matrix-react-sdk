@@ -1337,6 +1337,7 @@ export default class InviteDialog extends React.PureComponent<IInviteDialogProps
         if (this.props.kind === KIND_DM) {
             title = _t("Direct Messages");
 
+            //TÖRÖLVE ZSR "Start a conversation with someone using their name, email address or username (like <userId/>).",
             if (identityServersEnabled) {
                 helpText = _t(
                     "Start a conversation with someone using their name, email address or username (like <userId/>).",
@@ -1390,19 +1391,25 @@ export default class InviteDialog extends React.PureComponent<IInviteDialogProps
             }
             buttonText = _t("Go");
             goButtonFn = this.startDm;
-            extraSection = <div className="mx_InviteDialog_section_hidden_suggestions_disclaimer">
-                <span>{ _t("Some suggestions may be hidden for privacy.") }</span>
-                <p>{ _t("If you can't see who you're looking for, send them your invite link below.") }</p>
-            </div>;
+            //TÖRÖLVE ZSR
+            extraSection = <p/>;
+            // extraSection = <div className="mx_InviteDialog_section_hidden_suggestions_disclaimer">
+            //     <span>{ _t("Some suggestions may be hidden for privacy.") }</span>
+            //     <p>{ _t("If you can't see who you're looking for, send them your invite link below.") }</p>
+            // </div>;
             const link = makeUserPermalink(MatrixClientPeg.get().getUserId());
-            footer = <div className="mx_InviteDialog_footer">
-                <h3>{ _t("Or send invite link") }</h3>
-                <CopyableText getTextToCopy={() => makeUserPermalink(MatrixClientPeg.get().getUserId())}>
-                    <a href={link} onClick={this.onLinkClick}>
-                        { link }
-                    </a>
-                </CopyableText>
-            </div>;
+
+            //TÖRÖLVE ZSR
+            footer = <p/>;
+
+            // footer = <div className="mx_InviteDialog_footer">
+            //     <h3>{ _t("Or send invite link") }</h3>
+            //     <CopyableText getTextToCopy={() => makeUserPermalink(MatrixClientPeg.get().getUserId())}>
+            //         <a href={link} onClick={this.onLinkClick}>
+            //             { link }
+            //         </a>
+            //     </CopyableText>
+            // </div>;
         } else if (this.props.kind === KIND_INVITE) {
             const room = MatrixClientPeg.get()?.getRoom(this.props.roomId);
             const isSpace = SpaceStore.spacesEnabled && room?.isSpaceRoom();

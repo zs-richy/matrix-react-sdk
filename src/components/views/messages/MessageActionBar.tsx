@@ -19,7 +19,7 @@ limitations under the License.
 import React, { ReactElement, useEffect } from 'react';
 import { EventStatus, MatrixEvent } from 'matrix-js-sdk/src/models/event';
 import classNames from 'classnames';
-import { MsgType } from 'matrix-js-sdk/src/@types/event';
+import {EventType, MsgType} from 'matrix-js-sdk/src/@types/event';
 
 import type { Relations } from 'matrix-js-sdk/src/models/relations';
 import { _t } from '../../../languageHandler';
@@ -42,6 +42,10 @@ import ReplyChain from '../elements/ReplyChain';
 import { showThread } from '../../../dispatcher/dispatch-actions/threads';
 import ReactionPicker from "../emojipicker/ReactionPicker";
 import { CardContext } from '../right_panel/BaseCard';
+import {IconizedContextMenuOption} from "../context_menus/IconizedContextMenu";
+import {LOCATION_EVENT_TYPE} from "../../../../../matrix-js-sdk/src/@types/location";
+import Modal from "../../../Modal";
+import ForwardDialog from "../dialogs/ForwardDialog";
 
 interface IOptionsButtonProps {
     mxEvent: MatrixEvent;
@@ -286,16 +290,28 @@ export default class MessageActionBar extends React.PureComponent<IMessageAction
         );
     };
 
+    private onForwardClick = (): void => {
+        Modal.createTrackedDialog('Forward Message', '', ForwardDialog, {
+            matrixClient: MatrixClientPeg.get(),
+            event: this.props.mxEvent,
+            permalinkCreator: this.props.permalinkCreator,
+        });
+    };
+
     public render(): JSX.Element {
         const toolbarOpts = [];
-        if (canEditContent(this.props.mxEvent)) {
-            toolbarOpts.push(<RovingAccessibleTooltipButton
-                className="mx_MessageActionBar_maskButton mx_MessageActionBar_editButton"
-                title={_t("Edit")}
-                onClick={this.onEditClick}
-                key="edit"
-            />);
-        }
+
+        let forwardButton: JSX.Element;
+
+        //TÖRÖLVE ZSR
+        // if (canEditContent(this.props.mxEvent)) {
+        //     toolbarOpts.push(<RovingAccessibleTooltipButton
+        //         className="mx_MessageActionBar_maskButton mx_MessageActionBar_editButton"
+        //         title={_t("Edit")}
+        //         onClick={this.onEditClick}
+        //         key="edit"
+        //     />);
+        // }
 
         const cancelSendingButton = <RovingAccessibleTooltipButton
             className="mx_MessageActionBar_maskButton mx_MessageActionBar_cancelButton"
@@ -350,6 +366,26 @@ export default class MessageActionBar extends React.PureComponent<IMessageAction
                         />
                     ));
                 }
+
+                if (canForward(mxEvent)) {
+                    toolbarOpts.splice(0, 0, (
+                        <RovingAccessibleTooltipButton
+                            className="mx_MessageActionBar_maskButton mx_MessageActionBar_forwardButton"
+                            title={_t("Forward")}
+                            onClick={this.onForwardClick}
+                            key="forward"
+                        />
+                    ));
+                    // forwardButton = (
+                    //     <IconizedContextMenuOption
+                    //         iconClassName="mx_MessageContextMenu_iconForward"
+                    //         label={_t("Forward")}
+                    //         onClick={this.onForwardClick}
+                    //     />
+                    // );
+                }
+
+                //TÖRÖLVE ZSR
                 if (this.context.canReact) {
                     toolbarOpts.splice(0, 0, <ReactButton
                         mxEvent={this.props.mxEvent}
@@ -393,16 +429,17 @@ export default class MessageActionBar extends React.PureComponent<IMessageAction
                 />);
             }
 
+            //TÖRÖLVE ZSR
             // The menu button should be last, so dump it there.
-            toolbarOpts.push(<OptionsButton
-                mxEvent={this.props.mxEvent}
-                getReplyChain={this.props.getReplyChain}
-                getTile={this.props.getTile}
-                permalinkCreator={this.props.permalinkCreator}
-                onFocusChange={this.onFocusChange}
-                key="menu"
-                getRelationsForEvent={this.props.getRelationsForEvent}
-            />);
+            // toolbarOpts.push(<OptionsButton
+            //     mxEvent={this.props.mxEvent}
+            //     getReplyChain={this.props.getReplyChain}
+            //     getTile={this.props.getTile}
+            //     permalinkCreator={this.props.permalinkCreator}
+            //     onFocusChange={this.onFocusChange}
+            //     key="menu"
+            //     getRelationsForEvent={this.props.getRelationsForEvent}
+            // />);
         }
 
         // aria-live=off to not have this read out automatically as navigating around timeline, gets repetitive.
@@ -410,4 +447,20 @@ export default class MessageActionBar extends React.PureComponent<IMessageAction
             { toolbarOpts }
         </Toolbar>;
     }
+}
+
+//TODO ZSR
+function canForward(event: MatrixEvent): boolean {
+    return !isLocationEvent(event);
+}
+
+function isLocationEvent(event: MatrixEvent): boolean {
+    const eventType = event.getType();
+    return (
+        LOCATION_EVENT_TYPE.matches(eventType) ||
+        (
+            eventType === EventType.RoomMessage &&
+            LOCATION_EVENT_TYPE.matches(event.getContent().msgtype)
+        )
+    );
 }

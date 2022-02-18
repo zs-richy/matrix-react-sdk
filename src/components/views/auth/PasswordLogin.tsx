@@ -389,33 +389,69 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         const loginField = this.renderLoginField(this.state.loginType, !autoFocusPassword);
 
         let loginType;
+
         if (!SdkConfig.get().disable_3pid_login) {
+            //TÖRÖLVE ZSR
             loginType = (
                 <div className="mx_Login_type_container">
                     <label className="mx_Login_type_label">{ _t('Sign in with') }</label>
-                    <Field
-                        element="select"
-                        value={this.state.loginType}
-                        onChange={this.onLoginTypeChange}
-                        disabled={this.props.busy}
-                    >
-                        <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
-                            { _t('Username') }
-                        </option>
-                        <option
-                            key={LoginField.Email}
-                            value={LoginField.Email}
-                        >
-                            { _t('Email address') }
-                        </option>
-                        <option key={LoginField.Password} value={LoginField.Password}>
-                            { _t('Phone') }
-                        </option>
-                    </Field>
                 </div>
             );
+
+            // loginType = (
+            //     <div className="mx_Login_type_container">
+            //         <label className="mx_Login_type_label">{ _t('Sign in with') }</label>
+            //         <Field
+            //             element="select"
+            //             value={this.state.loginType}
+            //             onChange={this.onLoginTypeChange}
+            //             disabled={true}
+            //         >
+            //             <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
+            //                 { _t('Username') }
+            //             </option>
+            //             <option
+            //                 key={LoginField.Email}
+            //                 value={LoginField.Email}
+            //             >
+            //                 { _t('Email address') }
+            //             </option>
+            //             <option key={LoginField.Password} value={LoginField.Password}>
+            //                 { _t('Phone') }
+            //             </option>
+            //         </Field>
+            //     </div>
+            // );
         }
 
+        // if (!SdkConfig.get().disable_3pid_login) {
+        //     loginType = (
+        //         <div className="mx_Login_type_container">
+        //             <label className="mx_Login_type_label">{ _t('Sign in with') }</label>
+        //             <Field
+        //                 element="select"
+        //                 value={this.state.loginType}
+        //                 onChange={this.onLoginTypeChange}
+        //                 disabled={this.props.busy}
+        //             >
+        //                 <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
+        //                     { _t('Username') }
+        //                 </option>
+        //                 <option
+        //                     key={LoginField.Email}
+        //                     value={LoginField.Email}
+        //                 >
+        //                     { _t('Email address') }
+        //                 </option>
+        //                 <option key={LoginField.Password} value={LoginField.Password}>
+        //                     { _t('Phone') }
+        //                 </option>
+        //             </Field>
+        //         </div>
+        //     );
+        // }
+
+        //TÖRÖLVE ZSR
         return (
             <div>
                 <form onSubmit={this.onSubmitForm}>
@@ -435,7 +471,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
                         onValidate={this.onPasswordValidate}
                         ref={field => this[LoginField.Password] = field}
                     />
-                    { forgotPasswordJsx }
                     { !this.props.busy && <input className="mx_Login_submit"
                         type="submit"
                         value={_t('Sign in')}
@@ -444,5 +479,34 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
                 </form>
             </div>
         );
+
+        // return (
+        //     <div>
+        //         <form onSubmit={this.onSubmitForm}>
+        //             { loginType }
+        //             { loginField }
+        //             <Field
+        //                 id="mx_LoginForm_password"
+        //                 className={pwFieldClass}
+        //                 autoComplete="password"
+        //                 type="password"
+        //                 name="password"
+        //                 label={_t('Password')}
+        //                 value={this.state.password}
+        //                 onChange={this.onPasswordChanged}
+        //                 disabled={this.props.busy}
+        //                 autoFocus={autoFocusPassword}
+        //                 onValidate={this.onPasswordValidate}
+        //                 ref={field => this[LoginField.Password] = field}
+        //             />
+        //             { forgotPasswordJsx }
+        //             { !this.props.busy && <input className="mx_Login_submit"
+        //                                          type="submit"
+        //                                          value={_t('Sign in')}
+        //                                          disabled={this.props.disableSubmit}
+        //             /> }
+        //         </form>
+        //     </div>
+        // );
     }
 }

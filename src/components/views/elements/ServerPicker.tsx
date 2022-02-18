@@ -83,15 +83,20 @@ const ServerPicker = ({ title, dialogTitle, serverConfig, onServerConfigChange }
         </span>;
     }
 
-    return <div className="mx_ServerPicker">
-        <h3>{ title || _t("Homeserver") }</h3>
-        { !disableCustomUrls ? <AccessibleButton className="mx_ServerPicker_help" onClick={onHelpClick} /> : null }
-        <span className="mx_ServerPicker_server" title={typeof serverName === "string" ? serverName : undefined}>
-            { serverName }
-        </span>
-        { editBtn }
-        { desc }
-    </div>;
+    return <p>
+
+    </p>;
+
+    //TÖRÖLVE ZSR
+    // return <div className="mx_ServerPicker">
+    //     <h3>{ title || _t("Homeserver") }</h3>
+    //     { !disableCustomUrls ? <AccessibleButton className="mx_ServerPicker_help" onClick={onHelpClick} /> : null }
+    //     <span className="mx_ServerPicker_server" title={typeof serverName === "string" ? serverName : undefined}>
+    //         { serverName }
+    //     </span>
+    //     { editBtn }
+    //     { desc }
+    // </div>;
 };
 
 export default ServerPicker;

@@ -28,4 +28,12 @@ limitations under the License.
 .mx_AuthFooter a:visited {
     color: $accent-fg-color;
     margin: 0 22px;
+    visibility: hidden;
 }
+
+//.mx_AuthFooter a:link,
+//.mx_AuthFooter a:hover,
+//.mx_AuthFooter a:visited {
+//    color: $accent-fg-color;
+//    margin: 0 22px;
+//}

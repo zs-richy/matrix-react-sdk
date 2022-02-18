@@ -291,6 +291,7 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
 
     const memberCount = useRoomMemberCount(room);
 
+    //TÖRÖLVE ZSR
     return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={onClose}>
         <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
             <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
@@ -302,19 +303,38 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
             <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
                 { _t("Files") }
             </Button>
-            <Button className="mx_RoomSummaryCard_icon_export" onClick={onRoomExportClick}>
-                { _t("Export chat") }
-            </Button>
-            <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
-                { _t("Share room") }
-            </Button>
             <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
                 { _t("Room settings") }
             </Button>
         </Group>
 
-        { SettingsStore.getValue(UIFeature.Widgets) && <AppsSection room={room} /> }
     </BaseCard>;
 };
+
+//     return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={onClose}>
+//         <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
+//             <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
+//                 { _t("People") }
+//                 <span className="mx_BaseCard_Button_sublabel">
+//                     { memberCount }
+//                 </span>
+//             </Button>
+//             <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
+//                 { _t("Files") }
+//             </Button>
+//             <Button className="mx_RoomSummaryCard_icon_export" onClick={onRoomExportClick}>
+//                 { _t("Export chat") }
+//             </Button>
+//             <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
+//                 { _t("Share room") }
+//             </Button>
+//             <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
+//                 { _t("Room settings") }
+//             </Button>
+//         </Group>
+//
+//         { SettingsStore.getValue(UIFeature.Widgets) && <AppsSection room={room} /> }
+//     </BaseCard>;
+// };
 
 export default RoomSummaryCard;

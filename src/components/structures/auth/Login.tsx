@@ -531,15 +531,17 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
     private renderSsoStep = loginType => {
         const flow = this.state.flows.find(flow => flow.type === "m.login." + loginType) as ISSOFlow;
 
-        return (
-            <SSOButtons
-                matrixClient={this.loginLogic.createTemporaryClient()}
-                flow={flow}
-                loginType={loginType}
-                fragmentAfterLogin={this.props.fragmentAfterLogin}
-                primary={!this.state.flows.find(flow => flow.type === "m.login.password")}
-            />
-        );
+        return;
+
+        // return (
+        //     <SSOButtons
+        //         matrixClient={this.loginLogic.createTemporaryClient()}
+        //         flow={flow}
+        //         loginType={loginType}
+        //         fragmentAfterLogin={this.props.fragmentAfterLogin}
+        //         primary={!this.state.flows.find(flow => flow.type === "m.login.password")}
+        //     />
+        // );
     };
 
     render() {
@@ -583,16 +585,17 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
                 </div> }
             </div>;
         } else if (SettingsStore.getValue(UIFeature.Registration)) {
-            footer = (
-                <span className="mx_AuthBody_changeFlow">
-                    { _t("New? <a>Create account</a>", {}, {
-                        a: sub =>
-                            <AccessibleButton kind='link_inline' onClick={this.onTryRegisterClick}>
-                                { sub }
-                            </AccessibleButton>,
-                    }) }
-                </span>
-            );
+            //TÖRÖLVE ZSR
+            // footer = (
+            //     <span className="mx_AuthBody_changeFlow">
+            //         { _t("New? <a>Create account</a>", {}, {
+            //             a: sub =>
+            //                 <AccessibleButton kind='link_inline' onClick={this.onTryRegisterClick}>
+            //                     { sub }
+            //                 </AccessibleButton>,
+            //         }) }
+            //     </span>
+            // );
         }
 
         return (

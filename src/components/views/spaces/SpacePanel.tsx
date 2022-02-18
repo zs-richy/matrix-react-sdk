@@ -230,26 +230,29 @@ const CreateSpaceButton = ({
         betaDot = <div className="mx_BetaDot" />;
     }
 
-    return <li
-        className={classNames("mx_SpaceItem mx_SpaceItem_new", {
-            "collapsed": isPanelCollapsed,
-        })}
-        role="treeitem"
-    >
-        <SpaceButton
-            data-test-id='create-space-button'
-            className={classNames("mx_SpaceButton_new", {
-                mx_SpaceButton_newCancel: menuDisplayed,
-            })}
-            label={menuDisplayed ? _t("Cancel") : _t("Create a space")}
-            onClick={onNewClick}
-            isNarrow={isPanelCollapsed}
-        />
-        { betaDot }
-
-        { contextMenu }
-    </li>;
+    return <p/>;
 };
+//TÖRÖLVE ZSR
+// return <li
+//     className={classNames("mx_SpaceItem mx_SpaceItem_new", {
+//         "collapsed": isPanelCollapsed,
+//     })}
+//     role="treeitem"
+// >
+//     <SpaceButton
+//         data-test-id='create-space-button'
+//         className={classNames("mx_SpaceButton_new", {
+//             mx_SpaceButton_newCancel: menuDisplayed,
+//         })}
+//         label={menuDisplayed ? _t("Cancel") : _t("Create a space")}
+//         onClick={onNewClick}
+//         isNarrow={isPanelCollapsed}
+//     />
+//     { betaDot }
+//
+//     { contextMenu }
+// </li>;
+// };
 
 const metaSpaceComponentMap: Record<MetaSpace, typeof HomeButton> = {
     [MetaSpace.Home]: HomeButton,

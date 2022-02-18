@@ -100,25 +100,38 @@ export default class GeneralRoomSettingsTab extends React.Component<IProps, ISta
             </>;
         }
 
+        //TÖRÖLVE ZSR
         return (
             <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
                 <div className="mx_SettingsTab_heading">{ _t("General") }</div>
                 <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
                     <RoomProfileSettings roomId={this.props.roomId} />
                 </div>
-
-                <div className="mx_SettingsTab_heading">{ _t("Room Addresses") }</div>
-                <AliasSettings
-                    roomId={this.props.roomId}
-                    canSetCanonicalAlias={canSetCanonical}
-                    canSetAliases={canSetAliases}
-                    canonicalAliasEvent={canonicalAliasEv}
-                />
                 <div className="mx_SettingsTab_heading">{ _t("Other") }</div>
                 { flairSection }
-                { urlPreviewSettings }
                 { leaveSection }
             </div>
         );
+
+        // return (
+        //     <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
+        //         <div className="mx_SettingsTab_heading">{ _t("General") }</div>
+        //         <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
+        //             <RoomProfileSettings roomId={this.props.roomId} />
+        //         </div>
+        //
+        //         <div className="mx_SettingsTab_heading">{ _t("Room Addresses") }</div>
+        //         <AliasSettings
+        //             roomId={this.props.roomId}
+        //             canSetCanonicalAlias={canSetCanonical}
+        //             canSetAliases={canSetAliases}
+        //             canonicalAliasEvent={canonicalAliasEv}
+        //         />
+        //         <div className="mx_SettingsTab_heading">{ _t("Other") }</div>
+        //         { flairSection }
+        //         { urlPreviewSettings }
+        //         { leaveSection }
+        //     </div>
+        // );
     }
 }

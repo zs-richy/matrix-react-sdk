@@ -14,26 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import QuestionDialog from './QuestionDialog';
-import { _t } from '../../../languageHandler';
+import {_t} from '../../../languageHandler';
 import Field from "../elements/Field";
 import AccessibleButton from "../elements/AccessibleButton";
 import SdkConfig from "../../../SdkConfig";
 import Modal from "../../../Modal";
 import BugReportDialog from "./BugReportDialog";
 import InfoDialog from "./InfoDialog";
-import { IDialogProps } from "./IDialogProps";
-import { submitFeedback } from "../../../rageshake/submit-rageshake";
-import { useStateToggle } from "../../../hooks/useStateToggle";
-import StyledCheckbox from "../elements/StyledCheckbox";
+import {IDialogProps} from "./IDialogProps";
+import {submitFeedback} from "../../../rageshake/submit-rageshake";
+import {useStateToggle} from "../../../hooks/useStateToggle";
 
 const existingIssuesUrl = "https://github.com/vector-im/element-web/issues" +
     "?q=is%3Aopen+is%3Aissue+sort%3Areactions-%2B1-desc";
 const newIssueUrl = "https://github.com/vector-im/element-web/issues/new/choose";
 
-interface IProps extends IDialogProps {}
+interface IProps extends IDialogProps {
+}
 
 const FeedbackDialog: React.FC<IProps> = (props: IProps) => {
     const feedbackRef = useRef<Field>();
@@ -55,18 +55,21 @@ const FeedbackDialog: React.FC<IProps> = (props: IProps) => {
     const onFinished = (sendFeedback: boolean): void => {
         if (hasFeedback && sendFeedback) {
             if (rageshakeUrl) {
-                submitFeedback(rageshakeUrl, "feedback", comment, canContact);
+                submitFeedback(rageshakeUrl, "feedback", comment, canContact).catch(reason => console.log(reason));
             }
-
-            Modal.createTrackedDialog('Feedback sent', '', InfoDialog, {
-                title: _t('Feedback sent'),
-                description: _t('Thank you!'),
-            });
+            props.onFinished();
         }
-        props.onFinished();
     };
 
     let feedbackSection;
+    //TÖRÖLVE ZSR checkbox visszajelzéshez
+    // <StyledCheckbox
+    //     checked={canContact}
+    //     onChange={toggleCanContact}
+    // >
+    //     { _t("You may contact me if you want to follow up or to let me test out upcoming ideas") }
+    // </StyledCheckbox>
+
     if (rageshakeUrl) {
         feedbackSection = <div className="mx_FeedbackDialog_section mx_FeedbackDialog_rateApp">
             <h3>{ _t("Comment") }</h3>
@@ -85,13 +88,6 @@ const FeedbackDialog: React.FC<IProps> = (props: IProps) => {
                 }}
                 ref={feedbackRef}
             />
-
-            <StyledCheckbox
-                checked={canContact}
-                onChange={toggleCanContact}
-            >
-                { _t("You may contact me if you want to follow up or to let me test out upcoming ideas") }
-            </StyledCheckbox>
         </div>;
     }
 
@@ -109,26 +105,28 @@ const FeedbackDialog: React.FC<IProps> = (props: IProps) => {
         );
     }
 
+    //TÖRÖLVE ZSR GitHub Ticketes feedback
+    // <div className="mx_FeedbackDialog_section mx_FeedbackDialog_reportBug">
+    //     <h3>{ _t("Report a bug") }</h3>
+    //     <p>{
+    //         _t("Please view <existingIssuesLink>existing bugs on Github</existingIssuesLink> first. " +
+    //             "No match? <newIssueLink>Start a new one</newIssueLink>.", {}, {
+    //             existingIssuesLink: (sub) => {
+    //                 return <a target="_blank" rel="noreferrer noopener" href={existingIssuesUrl}>{ sub }</a>;
+    //             },
+    //             newIssueLink: (sub) => {
+    //                 return <a target="_blank" rel="noreferrer noopener" href={newIssueUrl}>{ sub }</a>;
+    //             },
+    //         })
+    //     }</p>
+    //     { bugReports }
+    // </div>
+
     return (<QuestionDialog
         className="mx_FeedbackDialog"
         hasCancelButton={!!hasFeedback}
         title={_t("Feedback")}
         description={<React.Fragment>
-            <div className="mx_FeedbackDialog_section mx_FeedbackDialog_reportBug">
-                <h3>{ _t("Report a bug") }</h3>
-                <p>{
-                    _t("Please view <existingIssuesLink>existing bugs on Github</existingIssuesLink> first. " +
-                        "No match? <newIssueLink>Start a new one</newIssueLink>.", {}, {
-                        existingIssuesLink: (sub) => {
-                            return <a target="_blank" rel="noreferrer noopener" href={existingIssuesUrl}>{ sub }</a>;
-                        },
-                        newIssueLink: (sub) => {
-                            return <a target="_blank" rel="noreferrer noopener" href={newIssueUrl}>{ sub }</a>;
-                        },
-                    })
-                }</p>
-                { bugReports }
-            </div>
             { feedbackSection }
         </React.Fragment>}
         button={hasFeedback ? _t("Send feedback") : _t("Go back")}

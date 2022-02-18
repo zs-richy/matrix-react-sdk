@@ -61,9 +61,27 @@ export default class Welcome extends React.PureComponent<IProps> {
                             "$riot:casUrl": "#/start_cas",
                         }}
                     />
-                    <LanguageSelector />
                 </div>
             </AuthPage>
         );
+
+        //TÖRÖLVE ZSR
+        // return (
+        //     <AuthPage>
+        //         <div className={classNames("mx_Welcome", {
+        //             mx_WelcomePage_registrationDisabled: !SettingsStore.getValue(UIFeature.Registration),
+        //         })}>
+        //             <EmbeddedPage
+        //                 className="mx_WelcomePage"
+        //                 url={pageUrl}
+        //                 replaceMap={{
+        //                     "$riot:ssoUrl": "#/start_sso",
+        //                     "$riot:casUrl": "#/start_cas",
+        //                 }}
+        //             />
+        //             <!--<LanguageSelector />
+        //         </div>
+        //     </AuthPage>
+        // );
     }
 }

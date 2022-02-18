@@ -26,6 +26,8 @@ import { _t } from '../languageHandler';
 import * as rageshake from './rageshake';
 import SettingsStore from "../settings/SettingsStore";
 import SdkConfig from "../SdkConfig";
+import Modal from "../Modal";
+import InfoDialog from "../components/views/dialogs/InfoDialog";
 
 interface IOpts {
     labels?: string[];
@@ -37,13 +39,15 @@ interface IOpts {
 }
 
 async function collectBugReport(opts: IOpts = {}, gzipLogs = true) {
-    const progressCallback = opts.progressCallback || (() => {});
+    const progressCallback = opts.progressCallback || (() => {
+    });
 
     progressCallback(_t("Collecting app version information"));
     let version = "UNKNOWN";
     try {
         version = await PlatformPeg.get().getAppVersion();
-    } catch (err) {} // PlatformPeg already logs this.
+    } catch (err) {
+    } // PlatformPeg already logs this.
 
     let userAgent = "UNKNOWN";
     if (window.navigator && window.navigator.userAgent) {
@@ -54,13 +58,15 @@ async function collectBugReport(opts: IOpts = {}, gzipLogs = true) {
     try {
         // Known to work at least for desktop Chrome
         installedPWA = String(window.matchMedia('(display-mode: standalone)').matches);
-    } catch (e) {}
+    } catch (e) {
+    }
 
     let touchInput = "UNKNOWN";
     try {
         // MDN claims broad support across browsers
         touchInput = String(window.matchMedia('(pointer: coarse)').matches);
-    } catch (e) { }
+    } catch (e) {
+    }
 
     const client = MatrixClientPeg.get();
 
@@ -141,11 +147,13 @@ async function collectBugReport(opts: IOpts = {}, gzipLogs = true) {
     if (navigator.storage && navigator.storage.persisted) {
         try {
             body.append("storageManager_persisted", String(await navigator.storage.persisted()));
-        } catch (e) {}
+        } catch (e) {
+        }
     } else if (document.hasStorageAccess) { // Safari
         try {
             body.append("storageManager_persisted", String(await document.hasStorageAccess()));
-        } catch (e) {}
+        } catch (e) {
+        }
     }
     if (navigator.storage && navigator.storage.estimate) {
         try {
@@ -157,7 +165,8 @@ async function collectBugReport(opts: IOpts = {}, gzipLogs = true) {
                     body.append(`storageManager_usage_${k}`, String(estimate.usageDetails[k]));
                 });
             }
-        } catch (e) {}
+        } catch (e) {
+        }
     }
 
     if (window.Modernizr) {
@@ -208,7 +217,8 @@ export default async function sendBugReport(bugReportEndpoint: string, opts: IOp
         throw new Error("No bug report endpoint has been set.");
     }
 
-    const progressCallback = opts.progressCallback || (() => {});
+    const progressCallback = opts.progressCallback || (() => {
+    });
     const body = await collectBugReport(opts);
 
     progressCallback(_t("Uploading logs"));
@@ -230,7 +240,8 @@ export default async function sendBugReport(bugReportEndpoint: string, opts: IOp
  * @return {Promise} Resolved when the bug report is downloaded (or started).
  */
 export async function downloadBugReport(opts: IOpts = {}) {
-    const progressCallback = opts.progressCallback || (() => {});
+    const progressCallback = opts.progressCallback || (() => {
+    });
     const body = await collectBugReport(opts, false);
 
     progressCallback(_t("Downloading logs"));
@@ -282,43 +293,97 @@ export async function submitFeedback(
     let version = "UNKNOWN";
     try {
         version = await PlatformPeg.get().getAppVersion();
-    } catch (err) {} // PlatformPeg already logs this.
+    } catch (err) {
+    } // PlatformPeg already logs this.
 
     const body = new FormData();
-    body.append("label", label);
-    body.append("text", comment);
-    body.append("can_contact", canContact ? "yes" : "no");
+    //TÖRÖLVE ZSR régi feedback body
+    // body.append("label", label);
+    // body.append("text", comment);
+    // body.append("can_contact", canContact ? "yes" : "no");
+    //
+    // body.append("app", "element-web");
+    // body.append("version", version);
+    // body.append("platform", PlatformPeg.get().getHumanReadableName());
+    // body.append("user_id", MatrixClientPeg.get()?.getUserId());
+    //
+    // for (const k in extraData) {
+    //     body.append(k, JSON.stringify(extraData[k]));
+    // }
 
-    body.append("app", "element-web");
-    body.append("version", version);
-    body.append("platform", PlatformPeg.get().getHumanReadableName());
-    body.append("user_id", MatrixClientPeg.get()?.getUserId());
+    // body.append("id", "");
+    // body.append("name", "WebKliens");
+    // body.append("info", comment);
+    // body.append("kep", "");
 
-    for (const k in extraData) {
-        body.append(k, JSON.stringify(extraData[k]));
-    }
+    const jsonData = {
+        "id": 0,
+        "name": MatrixClientPeg.get()?.getUserId(),
+        "info": comment,
+        "kep": " ",
+    };
 
-    await submitReport(SdkConfig.get().bug_report_endpoint_url, body, () => {});
+    console.log("FEEDBACK: visszajelzés küldése");
+    submitReport(SdkConfig.get().bug_report_endpoint_url, jsonData, () => {
+    });
 }
 
-function submitReport(endpoint: string, body: FormData, progressCallback: (str: string) => void): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        const req = new XMLHttpRequest();
-        req.open("POST", endpoint);
-        req.responseType = "json";
-        req.timeout = 5 * 60 * 1000;
-        req.onreadystatechange = function() {
-            if (req.readyState === XMLHttpRequest.LOADING) {
-                progressCallback(_t("Waiting for response from server"));
-            } else if (req.readyState === XMLHttpRequest.DONE) {
-                // on done
-                if (req.status < 200 || req.status >= 400) {
-                    reject(new Error(`HTTP ${req.status}`));
-                    return;
-                }
-                resolve(req.response.report_url || "");
+function submitReport(endpoint: string, body: any, progressCallback: (str: string) => void) {
+    // const req = new XMLHttpRequest();
+    // req.open("POST", endpoint);
+    // req.responseType = "json";
+    // req.timeout = 5 * 60 * 1000;
+    // req.onreadystatechange = function () {
+    //     if (req.readyState === XMLHttpRequest.LOADING) {
+    //         console.log("FEEDBACK: várakozás a válaszra");
+    //         progressCallback(_t("Waiting for response from server"));
+    //     } else if (req.readyState === XMLHttpRequest.DONE) {
+    //         // on done
+    //         console.log("FEEDBACK: válasz:");
+    //         console.log(req.response);
+    //         console.log("FEEDBACK: status:" + req.status);
+    //         if (req.status < 200 || req.status >= 400) {
+    //             reject(new Error(`HTTP ${req.status}`));
+    //             return;
+    //         }
+    //         resolve(req.response.report_url || "");
+    //     }
+    // };
+    // req.send(body);
+
+    try {
+        fetch(endpoint, {
+
+            method: "POST",
+            mode: 'cors',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+            },
+
+        }).then(resp => {
+            if (resp.status < 200 || resp.status >= 400) {
+                //reject(new Error(`HTTP ${resp.status}`));
+                hibaDialog();
+            } else {
+                console.log("VISSZAJELZÉS DONE");
+                Modal.createTrackedDialog('Feedback sent', '', InfoDialog, {
+                    title: _t('Feedback sent'),
+                    description: _t('Thank you!'),
+                });
             }
-        };
-        req.send(body);
+        }).catch(reason => {
+            hibaDialog();
+        });
+    } catch (e) {
+        hibaDialog();
+    }
+}
+
+function hibaDialog() {
+    console.error('Error: HIBA A VISSZAJELZÉS KÜLDÉSE KÖZBEN');
+    Modal.createTrackedDialog('Feedback fail', '', InfoDialog, {
+        title: "Hiba",
+        description: 'A visszajelzés nem lett elküldve!',
     });
 }
