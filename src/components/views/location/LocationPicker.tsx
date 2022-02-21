@@ -32,7 +32,8 @@ import { tileServerFromWellKnown } from '../../../utils/WellKnownUtils';
 
 interface IProps {
     sender: RoomMember;
-    onChoose(uri: string, ts: number): boolean;
+    //onChoose(uri: string, ts: number): boolean;
+    onChoose(uri: string): boolean;
     onFinished(ev?: SyntheticEvent): void;
 }
 
@@ -159,7 +160,7 @@ class LocationPicker extends React.Component<IProps, IState> {
 
         this.props.onChoose(
             position ? getGeoUri(position) : undefined,
-            position ? position.timestamp : undefined,
+            //position ? position.timestamp : undefined,
         );
         this.props.onFinished();
     };
@@ -210,18 +211,39 @@ class LocationPicker extends React.Component<IProps, IState> {
 export function getGeoUri(position: GeolocationPosition): string {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
-    const alt = (
-        Number.isFinite(position.coords.altitude)
-            ? `,${position.coords.altitude}`
-            : ""
-    );
-    const acc = (
-        Number.isFinite(position.coords.accuracy)
-            ? `;u=${ position.coords.accuracy }`
-            : ""
-    );
-    return `geo:${lat},${lon}${alt}${acc}`;
+    // const alt = (
+    //     Number.isFinite(position.coords.altitude)
+    //         ? `,${position.coords.altitude}`
+    //         : ""
+    // );
+    // const acc = (
+    //     Number.isFinite(position.coords.accuracy)
+    //         ? `;u=${ position.coords.accuracy }`
+    //         : ""
+    // );
+    return `{\"lat\":${lat},\"lng\":${lon}}`;
 }
+
+//"{\\\"lat\\\":(.*?),\\\"lng\\\":(.*?)}"
+
+
+//TÖRÖLVE ZSR
+// export function getGeoUri(position: GeolocationPosition): string {
+//     const lat = position.coords.latitude;
+//     const lon = position.coords.longitude;
+//     const alt = (
+//         Number.isFinite(position.coords.altitude)
+//             ? `,${position.coords.altitude}`
+//             : ""
+//     );
+//     const acc = (
+//         Number.isFinite(position.coords.accuracy)
+//             ? `;u=${ position.coords.accuracy }`
+//             : ""
+//     );
+//     return `geo:${lat},${lon}${alt}${acc}`;
+// }
+
 
 export default LocationPicker;
 

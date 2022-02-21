@@ -315,24 +315,40 @@ export function parseGeoUri(uri: string): GeolocationCoordinates {
         }
     }
 
-    const m = uri.match(/^\s*geo:(.*?)\s*$/);
+    console.log("LOCATION REGEXP");
+    const m = uri.match("{\\\"lat\\\":(.*?),\\\"lng\\\":(.*?)}");
     if (!m) return;
     const parts = m[1].split(';');
     const coords = parts[0].split(',');
     let uncertainty: number;
-    for (const param of parts.slice(1)) {
-        const m = param.match(/u=(.*)/);
-        if (m) uncertainty = parse(m[1]);
-    }
     return {
-        latitude: parse(coords[0]),
-        longitude: parse(coords[1]),
-        altitude: parse(coords[2]),
-        accuracy: uncertainty,
+        latitude: parse(m[1]),
+        longitude: parse(m[2]),
+        altitude: 0,
+        accuracy: 0,
         altitudeAccuracy: undefined,
         heading: undefined,
         speed: undefined,
     };
+
+    // const m = uri.match(/^\s*geo:(.*?)\s*$/);
+    // if (!m) return;
+    // const parts = m[1].split(';');
+    // const coords = parts[0].split(',');
+    // let uncertainty: number;
+    // for (const param of parts.slice(1)) {
+    //     const m = param.match(/u=(.*)/);
+    //     if (m) uncertainty = parse(m[1]);
+    // }
+    // return {
+    //     latitude: parse(coords[0]),
+    //     longitude: parse(coords[1]),
+    //     altitude: parse(coords[2]),
+    //     accuracy: uncertainty,
+    //     altitudeAccuracy: undefined,
+    //     heading: undefined,
+    //     speed: undefined,
+    // };
 }
 
 function makeLink(coords: GeolocationCoordinates): string {

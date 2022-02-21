@@ -66,6 +66,8 @@ import MatrixClientContext from "../../../contexts/MatrixClientContext";
 import SettingsStore from "../../../settings/SettingsStore";
 import PosthogTrackers from "../../../PosthogTrackers";
 import { ViewRoomPayload } from "../../../dispatcher/payloads/ViewRoomPayload";
+import dis from "../../../dispatcher/dispatcher";
+import RoomListActions from "../../../actions/RoomListActions";
 
 interface IProps {
     onKeyDown: (ev: React.KeyboardEvent, state: IRovingTabIndexState) => void;
@@ -86,6 +88,7 @@ interface IState {
 }
 
 export const TAG_ORDER: TagID[] = [
+    DefaultTagID.Jegyzeteim,
     DefaultTagID.Invite,
     DefaultTagID.Favourite,
     DefaultTagID.DM,
@@ -100,6 +103,7 @@ export const TAG_ORDER: TagID[] = [
 ];
 const CUSTOM_TAGS_BEFORE_TAG = DefaultTagID.LowPriority;
 const ALWAYS_VISIBLE_TAGS: TagID[] = [
+    DefaultTagID.Jegyzeteim,
     DefaultTagID.DM,
     DefaultTagID.Untagged,
 ];
@@ -312,6 +316,12 @@ const UntaggedAuxButton = ({ tabIndex }: IAuxButtonProps) => {
 };
 
 const TAG_AESTHETICS: ITagAestheticsMap = {
+    [DefaultTagID.Jegyzeteim]: {
+        sectionLabel: _td("Jegyzeteim"),
+        isInvite: false,
+        defaultHidden: false,
+        AuxButtonComponent: UntaggedAuxButton,
+    },
     [DefaultTagID.Invite]: {
         sectionLabel: _td("Invites"),
         isInvite: true,
@@ -462,6 +472,8 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
 
     private updateLists = () => {
         const newLists = RoomListStore.instance.orderedLists;
+        console.log("UPDATE KEYS:");
+        console.log(newLists);
         const previousListIds = Object.keys(this.state.sublists);
         const newListIds = Object.keys(newLists).filter(t => {
             if (!isCustomTag(t)) return true; // always include non-custom tags
@@ -478,6 +490,19 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
             // let's check the length of each.
             for (const tagId of newListIds) {
                 const oldRooms = this.state.sublists[tagId];
+                for (const nRoom of newLists[tagId]) {
+                    if (this.getJegyzetEventForRoom(nRoom)) {
+                        dis.dispatch(RoomListActions.tagRoom(
+                            MatrixClientPeg.get(),
+                            nRoom,
+                            null,
+                            "m.idomsoft.jegyzet",
+                            undefined,
+                            0,
+                        ));
+                        console.log("TAGGED!");
+                    }
+                }
                 const newRooms = newLists[tagId];
                 if (oldRooms.length !== newRooms.length) {
                     doUpdate = true;
@@ -498,6 +523,14 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
             });
         }
     };
+
+    private getJegyzetEventForRoom(room: Room): boolean {
+        const event = room.currentState.getStateEvents("m.idomsoft.jegyzet");
+        console.log(room);
+        console.log(event);
+
+        return event.length > 0;
+    }
 
     private onStartChat = () => {
         const initialText = RoomListStore.instance.getFirstNameFilterCondition()?.search;

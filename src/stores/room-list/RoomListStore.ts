@@ -42,6 +42,9 @@ import SpaceStore from "../spaces/SpaceStore";
 import { Action } from "../../dispatcher/actions";
 import { SettingUpdatedPayload } from "../../dispatcher/payloads/SettingUpdatedPayload";
 import { IRoomTimelineActionPayload } from "../../actions/MatrixActionCreators";
+import dis from "../../dispatcher/dispatcher";
+import RoomListActions from "../../actions/RoomListActions";
+import {MatrixClientPeg} from "../../MatrixClientPeg";
 
 interface IState {
     tagsEnabled?: boolean;
@@ -678,6 +681,12 @@ export class RoomListStoreClass extends AsyncStoreWithClient<IState> {
         const algorithmTags = this.algorithm.getTagsForRoom(room);
         if (!algorithmTags) return [DefaultTagID.Untagged];
         return algorithmTags;
+    }
+
+    public getJegyzetEventForRoom(room: Room): boolean {
+        let event = room.currentState.getStateEvents("m.idomsoft.jegyzet");
+
+        return event != null;
     }
 
     /**

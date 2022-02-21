@@ -115,15 +115,29 @@ const shareLocation = (client: MatrixClient, roomId: string, openMenu: () => voi
 
 export function textForLocation(
     uri: string,
-    ts: number,
     description: string | null,
 ): string {
-    const date = new Date(ts).toISOString();
+    const m = uri.match("{\\\"lat\\\":(.*?),\\\"lng\\\":(.*?)}");
+    if (!m) return;
     if (description) {
-        return `Location "${description}" ${uri} at ${date}`;
+        // return `🌍Aktuális pozícióm🌏 \n "${description}" ${uri}`;
+        return `🌍Aktuális pozícióm🌏 \n "${description}" ${uri}`;
     } else {
-        return `Location ${uri} at ${date}`;
+        return `🌍Aktuális pozícióm🌏 \nlat=${m[1]}\nlon=${m[2]}`;
     }
 }
+
+// export function textForLocation(
+//     uri: string,
+//     ts: number,
+//     description: string | null,
+// ): string {
+//     const date = new Date(ts).toISOString();
+//     if (description) {
+//         return `Location "${description}" ${uri} at ${date}`;
+//     } else {
+//         return `Location ${uri} at ${date}`;
+//     }
+// }
 
 export default LocationButton;
