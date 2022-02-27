@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import React, { ComponentType, createRef } from 'react';
-import { createClient, EventType, MatrixClient } from 'matrix-js-sdk/src/matrix';
+import {createClient, EventType, IInvite3PID, MatrixClient, Room} from 'matrix-js-sdk/src/matrix';
 import { ISyncStateData, SyncState } from 'matrix-js-sdk/src/sync';
 import { MatrixError } from 'matrix-js-sdk/src/http-api';
 import { InvalidStoreError } from "matrix-js-sdk/src/errors";
@@ -45,7 +45,7 @@ import * as Lifecycle from '../../Lifecycle';
 import '../../stores/LifecycleStore';
 import '../../stores/AutoRageshakeStore';
 import PageType from '../../PageTypes';
-import createRoom, { IOpts } from "../../createRoom";
+import createRoom, {canEncryptToAllUsers, findDMForUser, IOpts, privateShouldBeEncrypted} from "../../createRoom";
 import { _t, _td, getCurrentLanguage } from '../../languageHandler';
 import SettingsStore from "../../settings/SettingsStore";
 import ThemeController from "../../settings/controllers/ThemeController";
@@ -119,6 +119,7 @@ import { SummarizedNotificationState } from "../../stores/notifications/Summariz
 import GenericToast from '../views/toasts/GenericToast';
 import Views from '../../Views';
 import { ViewRoomPayload } from "../../dispatcher/payloads/ViewRoomPayload";
+import {getAddressType} from "../../UserAddress";
 
 // legacy export
 export { default as Views } from "../../Views";
@@ -709,6 +710,9 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 this.chatCreateOrReuse(payload.user_id);
                 break;
             case 'view_create_chat':
+                showStartChatInviteDialog(payload.initialText || "");
+                break;
+            case 'view_create_jegyzet':
                 showStartChatInviteDialog(payload.initialText || "");
                 break;
             case 'view_invite': {
@@ -2107,7 +2111,71 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             { view }
         </ErrorBoundary>;
     }
+
+    // private startJegyzetRoom = async () => {
+    //     const client = MatrixClientPeg.get();
+    //     const targetIds = targets.map(t => t.userId);
+    //
+    //     // Check if there is already a DM with these people and reuse it if possible.
+    //     let existingRoom: Room;
+    //     if (targetIds.length === 1) {
+    //         existingRoom = findDMForUser(client, targetIds[0]);
+    //     } else {
+    //         existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+    //     }
+    //     if (existingRoom) {
+    //         dis.dispatch<ViewRoomPayload>({
+    //             action: Action.ViewRoom,
+    //             room_id: existingRoom.roomId,
+    //             should_peek: false,
+    //             joining: false,
+    //             _trigger: "MessageUser",
+    //         });
+    //         return;
+    //     }
+    //
+    //     const createRoomOptions = { inlineErrors: true } as any; // XXX: Type out `createRoomOptions`
+    //
+    //     // Check if it's a traditional DM and create the room if required.
+    //     // TODO: [Canonical DMs] Remove this check and instead just create the multi-person DM
+    //     try {
+    //         const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();
+    //         if (targetIds.length === 1 && !isSelf) {
+    //             createRoomOptions.dmUserId = targetIds[0];
+    //         }
+    //
+    //         if (targetIds.length > 1) {
+    //             createRoomOptions.createOpts = targetIds.reduce(
+    //                 (roomOptions, address) => {
+    //                     const type = getAddressType(address);
+    //                     if (type === 'email') {
+    //                         const invite: IInvite3PID = {
+    //                             id_server: client.getIdentityServerUrl(true),
+    //                             medium: 'email',
+    //                             address,
+    //                         };
+    //                         roomOptions.invite_3pid.push(invite);
+    //                     } else if (type === 'mx-user-id') {
+    //                         roomOptions.invite.push(address);
+    //                     }
+    //                     return roomOptions;
+    //                 },
+    //                 { invite: [], invite_3pid: [] },
+    //             );
+    //         }
+    //
+    //         createRoomOptions.isJegyzet = true;
+    //
+    //         await createRoom(createRoomOptions);
+    //     } catch (err) {
+    //         logger.error(err);
+    //         this.setState({
+    //             errorText: _t("We couldn't create your DM."),
+    //         });
+    //     }
+    // };
 }
+
 
 export function isLoggedIn(): boolean {
     // JRS: Maybe we should move the step that writes this to the window out of

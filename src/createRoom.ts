@@ -46,6 +46,10 @@ import { Action } from "./dispatcher/actions";
 import ErrorDialog from "./components/views/dialogs/ErrorDialog";
 import Spinner from "./components/views/elements/Spinner";
 import { ViewRoomPayload } from "./dispatcher/payloads/ViewRoomPayload";
+import RoomListActions from "./actions/RoomListActions";
+import {MatrixEvent} from "../../matrix-js-sdk";
+import {useContext} from "react";
+import MatrixClientContext from "./contexts/MatrixClientContext";
 
 // we define a number of interfaces which take their names from the js-sdk
 /* eslint-disable camelcase */
@@ -66,6 +70,13 @@ export interface IOpts {
     // contextually only makes sense if parentSpace is specified, if true then will be added to parentSpace as suggested
     suggested?: boolean;
     joinRule?: JoinRule;
+    isJegyzet?: boolean;
+}
+
+function addIdomsoftJegyzetEventToRoom(roomId: string) {
+    const client = MatrixClientPeg.get();
+    client.sendStateEvent(roomId, "m.idomsoft.jegyzet", { } );
+    client.setRoomName(roomId, "Jegyzet");
 }
 
 /**
@@ -92,6 +103,7 @@ export default async function createRoom(opts: IOpts): Promise<string | null> {
     if (opts.spinner === undefined) opts.spinner = true;
     if (opts.guestAccess === undefined) opts.guestAccess = true;
     if (opts.encryption === undefined) opts.encryption = false;
+    if (opts.isJegyzet === undefined) opts.isJegyzet = false;
 
     const client = MatrixClientPeg.get();
     if (client.isGuest()) {
@@ -233,6 +245,18 @@ export default async function createRoom(opts: IOpts): Promise<string | null> {
     }).finally(function() {
         if (modal) modal.close();
     }).then(function(res) {
+        if (opts.isJegyzet) {
+            let cRoom = MatrixClientPeg.get().getRoom(res.room_id);
+            dis.dispatch(RoomListActions.tagRoom(
+                MatrixClientPeg.get(),
+                cRoom,
+                null,
+                "m.idomsoft.jegyzet",
+                undefined,
+                0,
+            ));
+            addIdomsoftJegyzetEventToRoom(res.room_id);
+        }
         roomId = res.room_id;
         if (opts.dmUserId) {
             return Rooms.setDMRoom(roomId, opts.dmUserId);
@@ -291,6 +315,7 @@ export default async function createRoom(opts: IOpts): Promise<string | null> {
         });
         return null;
     });
+
 }
 
 export function findDMForUser(client: MatrixClient, userId: string): Room {

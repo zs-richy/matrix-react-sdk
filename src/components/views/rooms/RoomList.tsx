@@ -14,37 +14,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { ComponentType, createRef, ReactComponentElement, RefObject } from "react";
-import { Room } from "matrix-js-sdk/src/models/room";
+import React, {ComponentType, createRef, ReactComponentElement, RefObject} from "react";
+import {Room} from "matrix-js-sdk/src/models/room";
 import * as fbEmitter from "fbemitter";
-import { EventType } from "matrix-js-sdk/src/@types/event";
+import {EventType} from "matrix-js-sdk/src/@types/event";
 
-import { _t, _td } from "../../../languageHandler";
-import { IState as IRovingTabIndexState, RovingTabIndexProvider } from "../../../accessibility/RovingTabIndex";
+import {_t, _td} from "../../../languageHandler";
+import {IState as IRovingTabIndexState, RovingTabIndexProvider} from "../../../accessibility/RovingTabIndex";
 import ResizeNotifier from "../../../utils/ResizeNotifier";
-import RoomListStore, { LISTS_UPDATE_EVENT } from "../../../stores/room-list/RoomListStore";
+import RoomListStore, {LISTS_UPDATE_EVENT} from "../../../stores/room-list/RoomListStore";
 import RoomViewStore from "../../../stores/RoomViewStore";
-import { ITagMap } from "../../../stores/room-list/algorithms/models";
-import { DefaultTagID, isCustomTag, TagID } from "../../../stores/room-list/models";
+import {ITagMap} from "../../../stores/room-list/algorithms/models";
+import {DefaultTagID, isCustomTag, TagID} from "../../../stores/room-list/models";
 import defaultDispatcher from "../../../dispatcher/dispatcher";
-import RoomSublist, { IAuxButtonProps } from "./RoomSublist";
-import { ActionPayload } from "../../../dispatcher/payloads";
-import { MatrixClientPeg } from "../../../MatrixClientPeg";
+import dis from "../../../dispatcher/dispatcher";
+import RoomSublist, {IAuxButtonProps} from "./RoomSublist";
+import {ActionPayload} from "../../../dispatcher/payloads";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import GroupAvatar from "../avatars/GroupAvatar";
 import ExtraTile from "./ExtraTile";
-import { StaticNotificationState } from "../../../stores/notifications/StaticNotificationState";
-import { Action } from "../../../dispatcher/actions";
-import { ViewRoomDeltaPayload } from "../../../dispatcher/payloads/ViewRoomDeltaPayload";
-import { RoomNotificationStateStore } from "../../../stores/notifications/RoomNotificationStateStore";
+import {StaticNotificationState} from "../../../stores/notifications/StaticNotificationState";
+import {Action} from "../../../dispatcher/actions";
+import {ViewRoomDeltaPayload} from "../../../dispatcher/payloads/ViewRoomDeltaPayload";
+import {RoomNotificationStateStore} from "../../../stores/notifications/RoomNotificationStateStore";
 import CustomRoomTagStore from "../../../stores/CustomRoomTagStore";
-import { arrayFastClone, arrayHasDiff } from "../../../utils/arrays";
-import { objectShallowClone, objectWithOnly } from "../../../utils/objects";
+import {arrayFastClone, arrayHasDiff} from "../../../utils/arrays";
+import {objectShallowClone, objectWithOnly} from "../../../utils/objects";
 import IconizedContextMenu, {
     IconizedContextMenuOption,
     IconizedContextMenuOptionList,
 } from "../context_menus/IconizedContextMenu";
-import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
-import { CommunityPrototypeStore } from "../../../stores/CommunityPrototypeStore";
+import AccessibleButton, {ButtonEvent} from "../elements/AccessibleButton";
+import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
 import SpaceStore from "../../../stores/spaces/SpaceStore";
 import {
     isMetaSpace,
@@ -54,20 +55,20 @@ import {
     UPDATE_SELECTED_SPACE,
     UPDATE_SUGGESTED_ROOMS,
 } from "../../../stores/spaces";
-import { shouldShowSpaceInvite, showAddExistingRooms, showCreateNewRoom, showSpaceInvite } from "../../../utils/space";
-import { replaceableComponent } from "../../../utils/replaceableComponent";
+import {shouldShowSpaceInvite, showAddExistingRooms, showCreateNewRoom, showSpaceInvite} from "../../../utils/space";
+import {replaceableComponent} from "../../../utils/replaceableComponent";
 import RoomAvatar from "../avatars/RoomAvatar";
-import { shouldShowComponent } from "../../../customisations/helpers/UIComponents";
-import { UIComponent } from "../../../settings/UIFeature";
+import {shouldShowComponent} from "../../../customisations/helpers/UIComponents";
+import {UIComponent} from "../../../settings/UIFeature";
 import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
-import { useEventEmitterState } from "../../../hooks/useEventEmitter";
-import { ChevronFace, ContextMenuTooltipButton, useContextMenu } from "../../structures/ContextMenu";
+import {useEventEmitterState} from "../../../hooks/useEventEmitter";
+import {ChevronFace, ContextMenuTooltipButton, useContextMenu} from "../../structures/ContextMenu";
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
 import SettingsStore from "../../../settings/SettingsStore";
 import PosthogTrackers from "../../../PosthogTrackers";
-import { ViewRoomPayload } from "../../../dispatcher/payloads/ViewRoomPayload";
-import dis from "../../../dispatcher/dispatcher";
+import {ViewRoomPayload} from "../../../dispatcher/payloads/ViewRoomPayload";
 import RoomListActions from "../../../actions/RoomListActions";
+import createRoom from "../../../createRoom";
 
 interface IProps {
     onKeyDown: (ev: React.KeyboardEvent, state: IRovingTabIndexState) => void;
@@ -130,7 +131,9 @@ const auxButtonContextMenuPosition = (handle: RefObject<HTMLDivElement>) => {
     };
 };
 
-const DmAuxButton = ({ tabIndex, dispatcher = defaultDispatcher }: IAuxButtonProps) => {
+let canAddMoreJegyzet = true;
+
+const DmAuxButton = ({tabIndex, dispatcher = defaultDispatcher}: IAuxButtonProps) => {
     const [menuDisplayed, handle, openMenu, closeMenu] = useContextMenu<HTMLDivElement>();
     const activeSpace = useEventEmitterState<Room>(SpaceStore.instance, UPDATE_SELECTED_SPACE, () => {
         return SpaceStore.instance.activeSpaceRoom;
@@ -146,17 +149,17 @@ const DmAuxButton = ({ tabIndex, dispatcher = defaultDispatcher }: IAuxButtonPro
 
             contextMenu = <IconizedContextMenu {...auxButtonContextMenuPosition(handle)} onFinished={closeMenu} compact>
                 <IconizedContextMenuOptionList first>
-                    { showCreateRooms && <IconizedContextMenuOption
+                    {showCreateRooms && <IconizedContextMenuOption
                         label={_t("Start new chat")}
                         iconClassName="mx_RoomList_iconStartChat"
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             closeMenu();
-                            defaultDispatcher.dispatch({ action: "view_create_chat" });
+                            defaultDispatcher.dispatch({action: "view_create_chat"});
                         }}
-                    /> }
-                    { showInviteUsers && <IconizedContextMenuOption
+                    />}
+                    {showInviteUsers && <IconizedContextMenuOption
                         label={_t("Invite to space")}
                         iconClassName="mx_RoomList_iconInvite"
                         onClick={(e) => {
@@ -168,29 +171,47 @@ const DmAuxButton = ({ tabIndex, dispatcher = defaultDispatcher }: IAuxButtonPro
                         disabled={!canInvite}
                         tooltip={canInvite ? undefined
                             : _t("You do not have permissions to invite people to this space")}
-                    /> }
+                    />}
                 </IconizedContextMenuOptionList>
             </IconizedContextMenu>;
         }
 
-        return <>
-            <ContextMenuTooltipButton
-                tabIndex={tabIndex}
-                onClick={openMenu}
-                className="mx_RoomSublist_auxButton"
-                tooltipClassName="mx_RoomSublist_addRoomTooltip"
-                aria-label={_t("Add people")}
-                title={_t("Add people")}
-                isExpanded={menuDisplayed}
-                inputRef={handle}
-            />
+        console.log("canAddMoreJegyzet?:" + canAddMoreJegyzet);
+        if (!canAddMoreJegyzet) {
+            return <>
+                <ContextMenuTooltipButton
+                    tabIndex={tabIndex}
+                    onClick={closeMenu}
+                    className="mx_RoomSublist_auxButton"
+                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                    aria-label={_t("Add people")}
+                    title={_t("Add people")}
+                    isExpanded={menuDisplayed}
+                    inputRef={handle}
+                />
 
-            { contextMenu }
-        </>;
+                {contextMenu}
+            </>;
+        } else {
+            return <>
+                <ContextMenuTooltipButton
+                    tabIndex={tabIndex}
+                    onClick={openMenu}
+                    className="mx_RoomSublist_auxButton"
+                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                    aria-label={_t("Add people")}
+                    title={_t("Add people")}
+                    isExpanded={menuDisplayed}
+                    inputRef={handle}
+                />
+
+                {contextMenu}
+            </>;
+        }
     } else if (!activeSpace && showCreateRooms) {
         return <AccessibleTooltipButton
             tabIndex={tabIndex}
-            onClick={() => dispatcher.dispatch({ action: 'view_create_chat' })}
+            onClick={() => dispatcher.dispatch({action: 'view_create_chat'})}
             className="mx_RoomSublist_auxButton"
             tooltipClassName="mx_RoomSublist_addRoomTooltip"
             aria-label={_t("Start chat")}
@@ -201,7 +222,96 @@ const DmAuxButton = ({ tabIndex, dispatcher = defaultDispatcher }: IAuxButtonPro
     return null;
 };
 
-const UntaggedAuxButton = ({ tabIndex }: IAuxButtonProps) => {
+const JegyzetAuxButton = ({tabIndex, dispatcher = defaultDispatcher}: IAuxButtonProps) => {
+    const [menuDisplayed, handle, openMenu, closeMenu] = useContextMenu<HTMLDivElement>();
+    const activeSpace = useEventEmitterState<Room>(SpaceStore.instance, UPDATE_SELECTED_SPACE, () => {
+        return SpaceStore.instance.activeSpaceRoom;
+    });
+
+    const showCreateRooms = shouldShowComponent(UIComponent.CreateRooms);
+    const showInviteUsers = shouldShowComponent(UIComponent.InviteUsers);
+
+    if (activeSpace && (showCreateRooms || showInviteUsers)) {
+        let contextMenu: JSX.Element;
+        if (menuDisplayed) {
+            contextMenu = <IconizedContextMenu {...auxButtonContextMenuPosition(handle)} onFinished={closeMenu} compact>
+                <IconizedContextMenuOptionList first>
+                    {showCreateRooms && <IconizedContextMenuOption
+                        label={_t("Start new chat")}
+                        iconClassName="mx_RoomList_iconStartChat"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            closeMenu();
+                            //defaultDispatcher.dispatch({action: "view_create_jegyzet"});
+                            const createRoomOptions = {
+                                inlineErrors: true,
+                                encryption: false,
+                                isJegyzet: true,
+                            } as any;
+                            createRoom(createRoomOptions);
+                        }}
+                    />}
+                </IconizedContextMenuOptionList>
+            </IconizedContextMenu>;
+        }
+
+        console.log("canAddMoreJegyzet?:" + canAddMoreJegyzet);
+        if (!canAddMoreJegyzet) {
+            return <>
+                <ContextMenuTooltipButton
+                    tabIndex={tabIndex}
+                    onClick={closeMenu}
+                    className="mx_RoomSublist_auxButton"
+                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                    aria-label={_t("Add people")}
+                    title={_t("Add people")}
+                    isExpanded={menuDisplayed}
+                    inputRef={handle}
+                />
+
+                {contextMenu}
+            </>;
+        } else {
+            return <>
+                <ContextMenuTooltipButton
+                    tabIndex={tabIndex}
+                    onClick={openMenu}
+                    className="mx_RoomSublist_auxButton"
+                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                    aria-label={_t("Add people")}
+                    title={_t("Add people")}
+                    isExpanded={menuDisplayed}
+                    inputRef={handle}
+                />
+
+                {contextMenu}
+            </>;
+        }
+    } else if (!activeSpace && showCreateRooms) {
+        return <AccessibleTooltipButton
+            tabIndex={tabIndex}
+            onClick={() => {
+                if (canAddMoreJegyzet) {
+                    const createRoomOptions = {
+                        inlineErrors: true,
+                        encryption: false,
+                        isJegyzet: true,
+                    } as any;
+                    createRoom(createRoomOptions);
+                }
+            }}
+            className="mx_RoomSublist_auxButton"
+            tooltipClassName="mx_RoomSublist_addRoomTooltip"
+            aria-label={_t("Start chat")}
+            title={_t("Jegyzet letrehozasa")}
+        />;
+    }
+
+    return null;
+};
+
+const UntaggedAuxButton = ({tabIndex}: IAuxButtonProps) => {
     const [menuDisplayed, handle, openMenu, closeMenu] = useContextMenu<HTMLDivElement>();
     const activeSpace = useEventEmitterState<Room>(SpaceStore.instance, UPDATE_SELECTED_SPACE, () => {
         return SpaceStore.instance.activeSpaceRoom;
@@ -266,17 +376,17 @@ const UntaggedAuxButton = ({ tabIndex }: IAuxButtonProps) => {
         </IconizedContextMenuOptionList>;
     } else if (menuDisplayed) {
         contextMenuContent = <IconizedContextMenuOptionList first>
-            { showCreateRoom && <IconizedContextMenuOption
+            {showCreateRoom && <IconizedContextMenuOption
                 label={_t("Create new room")}
                 iconClassName="mx_RoomList_iconCreateNewRoom"
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     closeMenu();
-                    defaultDispatcher.dispatch({ action: "view_create_room" });
+                    defaultDispatcher.dispatch({action: "view_create_room"});
                     PosthogTrackers.trackInteraction("WebRoomListRoomsSublistPlusMenuCreateRoomItem", e);
                 }}
-            /> }
+            />}
             <IconizedContextMenuOption
                 label={CommunityPrototypeStore.instance.getSelectedCommunityId()
                     ? _t("Explore community rooms")
@@ -295,7 +405,7 @@ const UntaggedAuxButton = ({ tabIndex }: IAuxButtonProps) => {
     let contextMenu: JSX.Element;
     if (menuDisplayed) {
         contextMenu = <IconizedContextMenu {...auxButtonContextMenuPosition(handle)} onFinished={closeMenu} compact>
-            { contextMenuContent }
+            {contextMenuContent}
         </IconizedContextMenu>;
     }
 
@@ -311,7 +421,7 @@ const UntaggedAuxButton = ({ tabIndex }: IAuxButtonProps) => {
             inputRef={handle}
         />
 
-        { contextMenu }
+        {contextMenu}
     </>;
 };
 
@@ -320,7 +430,7 @@ const TAG_AESTHETICS: ITagAestheticsMap = {
         sectionLabel: _td("Jegyzeteim"),
         isInvite: false,
         defaultHidden: false,
-        AuxButtonComponent: UntaggedAuxButton,
+        AuxButtonComponent: JegyzetAuxButton,
     },
     [DefaultTagID.Invite]: {
         sectionLabel: _td("Invites"),
@@ -471,6 +581,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
     };
 
     private updateLists = () => {
+        canAddMoreJegyzet = true;
         const newLists = RoomListStore.instance.orderedLists;
         console.log("UPDATE KEYS:");
         console.log(newLists);
@@ -492,6 +603,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
                 const oldRooms = this.state.sublists[tagId];
                 for (const nRoom of newLists[tagId]) {
                     if (this.getJegyzetEventForRoom(nRoom)) {
+                        canAddMoreJegyzet = false;
                         dis.dispatch(RoomListActions.tagRoom(
                             MatrixClientPeg.get(),
                             nRoom,
@@ -518,7 +630,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
             const newSublists = objectWithOnly(newLists, newListIds);
             const sublists = objectShallowClone(newSublists, (k, v) => arrayFastClone(v));
 
-            this.setState({ sublists, isNameFiltering }, () => {
+            this.setState({sublists, isNameFiltering}, () => {
                 this.props.onResize();
             });
         }
@@ -534,7 +646,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
 
     private onStartChat = () => {
         const initialText = RoomListStore.instance.getFirstNameFilterCondition()?.search;
-        defaultDispatcher.dispatch({ action: "view_create_chat", initialText });
+        defaultDispatcher.dispatch({action: "view_create_chat", initialText});
     };
 
     private onExplore = (ev: ButtonEvent) => {
@@ -547,7 +659,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
             PosthogTrackers.trackInteraction("WebRoomListRoomsSublistPlusMenuExploreRoomsItem", ev);
         } else {
             const initialText = RoomListStore.instance.getFirstNameFilterCondition()?.search;
-            defaultDispatcher.dispatch({ action: Action.ViewRoomDirectory, initialText });
+            defaultDispatcher.dispatch({action: Action.ViewRoomDirectory, initialText});
         }
     };
 
@@ -709,20 +821,20 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
         if (!this.props.isMinimized) {
             if (this.state.isNameFiltering) {
                 explorePrompt = <div className="mx_RoomList_explorePrompt">
-                    <div>{ _t("Can't see what you're looking for?") }</div>
+                    <div>{_t("Can't see what you're looking for?")}</div>
                     <AccessibleButton
                         className="mx_RoomList_explorePrompt_startChat"
                         kind="link"
                         onClick={this.onStartChat}
                     >
-                        { _t("Start a new chat") }
+                        {_t("Start a new chat")}
                     </AccessibleButton>
                     <AccessibleButton
                         className="mx_RoomList_explorePrompt_explore"
                         kind="link"
                         onClick={this.onExplore}
                     >
-                        { !isMetaSpace(this.props.activeSpace) ? _t("Explore rooms") : _t("Explore all public rooms") }
+                        {!isMetaSpace(this.props.activeSpace) ? _t("Explore rooms") : _t("Explore all public rooms")}
                     </AccessibleButton>
                 </div>;
             }
@@ -731,7 +843,7 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
         const sublists = this.renderSublists();
         return (
             <RovingTabIndexProvider handleHomeEnd handleUpDown onKeyDown={this.props.onKeyDown}>
-                { ({ onKeyDownHandler }) => (
+                {({onKeyDownHandler}) => (
                     <div
                         onFocus={this.props.onFocus}
                         onBlur={this.props.onBlur}
@@ -741,10 +853,10 @@ export default class RoomList extends React.PureComponent<IProps, IState> {
                         aria-label={_t("Rooms")}
                         ref={this.treeRef}
                     >
-                        { sublists }
-                        { explorePrompt }
+                        {sublists}
+                        {explorePrompt}
                     </div>
-                ) }
+                )}
             </RovingTabIndexProvider>
         );
     }

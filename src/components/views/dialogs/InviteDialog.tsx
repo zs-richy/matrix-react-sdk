@@ -741,6 +741,86 @@ export default class InviteDialog extends React.PureComponent<IInviteDialogProps
         }
     };
 
+    private startJegyzetRoom = async () => {
+        this.setState({ busy: true });
+        const client = MatrixClientPeg.get();
+        const targets = this.convertFilter();
+        const targetIds = targets.map(t => t.userId);
+
+        // Check if there is already a DM with these people and reuse it if possible.
+        let existingRoom: Room;
+        if (targetIds.length === 1) {
+            existingRoom = findDMForUser(client, targetIds[0]);
+        } else {
+            existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+        }
+        if (existingRoom) {
+            dis.dispatch<ViewRoomPayload>({
+                action: Action.ViewRoom,
+                room_id: existingRoom.roomId,
+                should_peek: false,
+                joining: false,
+                _trigger: "MessageUser",
+            });
+            this.props.onFinished(true);
+            return;
+        }
+
+        const createRoomOptions = { inlineErrors: true } as any; // XXX: Type out `createRoomOptions`
+
+        if (privateShouldBeEncrypted()) {
+            // Check whether all users have uploaded device keys before.
+            // If so, enable encryption in the new room.
+            const has3PidMembers = targets.some(t => t instanceof ThreepidMember);
+            if (!has3PidMembers) {
+                const allHaveDeviceKeys = await canEncryptToAllUsers(client, targetIds);
+                if (allHaveDeviceKeys) {
+                    createRoomOptions.encryption = true;
+                }
+            }
+        }
+
+        // Check if it's a traditional DM and create the room if required.
+        // TODO: [Canonical DMs] Remove this check and instead just create the multi-person DM
+        try {
+            const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();
+            if (targetIds.length === 1 && !isSelf) {
+                createRoomOptions.dmUserId = targetIds[0];
+            }
+
+            if (targetIds.length > 1) {
+                createRoomOptions.createOpts = targetIds.reduce(
+                    (roomOptions, address) => {
+                        const type = getAddressType(address);
+                        if (type === 'email') {
+                            const invite: IInvite3PID = {
+                                id_server: client.getIdentityServerUrl(true),
+                                medium: 'email',
+                                address,
+                            };
+                            roomOptions.invite_3pid.push(invite);
+                        } else if (type === 'mx-user-id') {
+                            roomOptions.invite.push(address);
+                        }
+                        return roomOptions;
+                    },
+                    { invite: [], invite_3pid: [] },
+                );
+            }
+
+            createRoomOptions.isJegyzet = true;
+
+            await createRoom(createRoomOptions);
+            this.props.onFinished(true);
+        } catch (err) {
+            logger.error(err);
+            this.setState({
+                busy: false,
+                errorText: _t("We couldn't create your DM."),
+            });
+        }
+    };
+
     private inviteUsers = async () => {
         this.setState({ busy: true });
         this.convertFilter();
